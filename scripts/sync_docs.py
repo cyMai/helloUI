@@ -26,7 +26,7 @@ def sources(root):
             break
         if any(part in IGNORE for part in path.relative_to(root).parts):
             continue
-        if path.is_file() and path.suffix.lower() in {".css", ".scss", ".js", ".jsx", ".ts", ".tsx", ".vue", ".svelte"} and path.stat().st_size < 500_000:
+        if path.is_file() and path.suffix.lower() in {".html", ".htm", ".css", ".scss", ".js", ".jsx", ".ts", ".tsx", ".vue", ".svelte"} and path.stat().st_size < 500_000:
             result.append(path)
     return sorted(result)
 
@@ -37,7 +37,7 @@ def classify(name):
         return {"design.md", "craft.md", "template.md"}
     if "component" in p or "/ui/" in p:
         return {"components.md", "craft.md"}
-    if "page" in p or "route" in p or "screen" in p or "/app/" in p:
+    if p.endswith((".html", ".htm")) or "page" in p or "route" in p or "screen" in p or "/app/" in p:
         return {"spec.md", "template.md"}
     if "model" in p or "schema" in p or "domain" in p:
         return {"domain.md", "spec.md"}

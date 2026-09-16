@@ -12,3 +12,5 @@ Use this for components whose behavior must remain consistent across screens or 
 8. **Evidence and ownership:** Implementing component path, representative screen, status, and last verified date. If no implementation exists, mark proposed.
 
 When implementing, verify the states and widths affected by the change. Capture a compact result in the task summary; do not add a giant screenshot archive to the canonical spec.
+
+For multiple HTML pages or modules, the same semantic component should keep the same typography, spacing, color role, focus treatment, and disabled behavior. Prefer one shared implementation or stylesheet rule. Give a page-specific variant a name and a reason; do not silently fork the base component style.
