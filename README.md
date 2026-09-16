@@ -14,7 +14,7 @@ helloUI 不提供固定的视觉模板。用户的新需求决定本次要实现
 npx skills add cyMai/helloUI -s hello-ui -g -y
 ```
 
-安装后开启新的 Codex 会话，使用 `$hello-ui`。附带的源码提取脚本需要 Python 3.9 或更新版本，无需额外 Python 包。
+安装后开启新的 Codex 会话，使用 `$hello-ui`。源码提取脚本需要 Python 3.9 或更新版本，无需额外 Python 包。截图对比是可选功能，依赖见下文。
 
 ## 1. 新项目只有「页面参考.zip」
 
@@ -59,6 +59,8 @@ $hello-ui 在当前页面新增功能介绍、案例和 FAQ 模块。保持标�
 
 日常迭代的顺序是：理解本次用户需求 → 查看受影响的现有页面与规则 → 复用或调整共享实现 → 运行 demo 并检查相关页面 → 仅在项目级规则改变时更新 `DESIGN.md`。页面截图可用于核对迭代前后的实际效果，不需要先制作原型图。
 
+如果已建立页面截图基线，调用 `$hello-ui` 处理新增页面、较大模块或共享样式变化时，Codex 会在实现后运行对比（依赖和页面可运行时）。它会标出哪些页面和宽度发生变化；Codex 仍需根据本次需求判断变化是否合理。脚本不驻留后台。
+
 **逻辑复用**指相同职责使用同一实现，例如几个页面调用同一个表单校验、日期格式化或筛选函数。外观相似但业务含义不同的流程可以保持分开；纯 HTML 项目无需为了复用而引入框架。复用的实际代码入口可记在 `DESIGN.md` 的“组件与交互”节。
 
 **跨端适配**指同一功能页保留同一份 HTML/路由，通过布局与交互适配不同宽度。首页和详情页可以是两个 HTML 文件；同一个详情页不需要另做 `detail-mobile.html`。完成后检查导航、内容顺序、主操作、横向溢出及共享组件在手机和桌面的表现。
@@ -99,6 +101,34 @@ python 'C:\path\to\helloUI\scripts\extract_design.py' --project-root 'D:\my-proj
 
 建议把 `.hello-ui/` 加入目标项目的 `.gitignore`。脚本只分析静态 `.html`、`.htm`、`.css`、`.scss` 文本；**不会判断 JS 逻辑是否值得抽取，不会计算浏览器最终样式，也不会创建或覆盖 `DESIGN.md`**。Codex 需要查看实际页面、核对源码与用户要求，才能确认规则。看不到的动态状态或视觉效果应明确标为未验证。
 
+## 自动截图对比（可选）
+
+安装可选依赖，并准备本机 Chrome、Edge 或 Playwright Chromium。Playwright 可使用本机 Chrome/Edge；不需要为普通文档或源码提取安装它。[浏览器与截图用法](https://playwright.dev/python/docs/browsers)见 Playwright 官方文档。
+
+```bash
+python -m pip install -r /path/to/helloUI/requirements-visual.txt
+```
+
+首次在**已查看过的可运行 demo** 上建立基线，列出代表性页面和手机、桌面宽度：
+
+```bash
+python /path/to/helloUI/scripts/visual_compare.py --project-root /path/to/project --mode baseline --pages index.html detail.html --widths 390 1280
+```
+
+这会在项目的 `ui-baseline/` 保存整页 PNG 和 `manifest.json`。建议把基线随项目一起版本管理，它记录的是当前确认可用于比较的 demo，不是原型图。之后直接运行：
+
+```bash
+python /path/to/helloUI/scripts/visual_compare.py --project-root /path/to/project --mode compare
+```
+
+报告位于 `.hello-ui/visual-report/report.md`，同目录有每张当前截图与红色差异图。默认超过 **0.1%** 的像素变化，或整页尺寸变化时返回非零状态；阈值可用 `--max-diff-percent` 调整。结果说明**哪里变了**，不会判断变化是否符合用户需求。先修复意外变化；确认整套页面的新状态后，才明确更新基线：
+
+```bash
+python /path/to/helloUI/scripts/visual_compare.py --project-root /path/to/project --mode baseline --replace-baseline --pages index.html detail.html --widths 390 1280
+```
+
+运行中的站点也支持路由截图：先启动项目，再加 `--base-url http://127.0.0.1:3000 --pages / /detail` 建立基线；后续 `compare` 会读取基线中的页面与视口。新页面尚无历史截图，先直接查看并与旧页面比较，确认后用 `--replace-baseline` 将它加入页面列表。尽量固定数据、字体、图片和浏览器环境，避免时间、随机内容或加载状态造成误报。首次建基线前仍要人工检查跨页面风格；截图对比主要发现**迭代后的漂移**，不能自动证明不同页面本来就一致。
+
 ## 目录结构
 
 ```text
@@ -106,11 +136,14 @@ helloUI/
 ├── SKILL.md                         Codex 工作规则
 ├── README.md                        本说明
 ├── scripts/
-│   └── extract_design.py            源码证据与候选规则
+│   ├── extract_design.py            源码证据与候选规则
+│   └── visual_compare.py            页面截图基线与差异报告
 ├── tests/
-│   └── test_extract_design.py       提取脚本测试
+│   ├── test_extract_design.py       提取脚本测试
+│   └── test_visual_compare.py       像素差异测试
+├── requirements-visual.txt          截图功能的可选依赖
 └── references/
     └── design-contract.md           一份 DESIGN.md 的六个视角
 ```
 
-开发此 skill 时可运行 `python -m unittest discover -s tests -v` 验证提取脚本。
+开发此 skill 时可运行 `python -m unittest discover -s tests -v` 验证脚本；未安装可选 Pillow 时会跳过像素差异测试。
