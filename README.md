@@ -61,7 +61,7 @@ $hello-ui 在当前页面新增功能介绍、案例和 FAQ 模块。保持标�
 
 **逻辑复用**指相同职责使用同一实现，例如几个页面调用同一个表单校验、日期格式化或筛选函数。外观相似但业务含义不同的流程可以保持分开；纯 HTML 项目无需为了复用而引入框架。复用的实际代码入口可记在 `DESIGN.md` 的“组件与交互”节。
 
-**跨端适配**指同一功能页保留同一份 HTML/路由，通过布局与交互适配不同宽度。首页和详情页可以是两个 HTML 文件；同一个详情页不需要另做 `detail-mobile.html`。详见 [一致性检查](references/consistency-contract.md) 与 [响应式检查](references/responsive-contract.md)。
+**跨端适配**指同一功能页保留同一份 HTML/路由，通过布局与交互适配不同宽度。首页和详情页可以是两个 HTML 文件；同一个详情页不需要另做 `detail-mobile.html`。完成后检查导航、内容顺序、主操作、横向溢出及共享组件在手机和桌面的表现。
 
 ## 一份 `DESIGN.md` 怎么写
 
@@ -76,7 +76,7 @@ $hello-ui 在当前页面新增功能介绍、案例和 FAQ 模块。保持标�
 | 组件与交互 | 组件用途、变体、状态、共享逻辑入口 | 无跨页面复用时可写很短 |
 | 页面类型与布局 | 页面壳层、模块组合和同页跨端变化 | 不虚构不存在的页面类型 |
 
-写法见 [设计文档契约](references/design-contract.md)。`DESIGN.md` 是给下次开发看的当前规则，不是自动扫描报告。重大选择可另写 [决策记录](references/decision-records.md)，日常改动无需增加文档。
+写法见 [设计文档契约](references/design-contract.md)。`DESIGN.md` 是给下次开发看的当前规则，不是自动扫描报告。重要选择的理由可记在对应规则旁，日常改动无需增加文档。
 
 ## 自动提取能做什么
 
@@ -110,11 +110,7 @@ helloUI/
 ├── tests/
 │   └── test_extract_design.py       提取脚本测试
 └── references/
-    ├── design-contract.md           一份 DESIGN.md 的六个视角
-    ├── consistency-contract.md      多页面与多模块一致性
-    ├── component-contract.md        组件与状态
-    ├── responsive-contract.md       同一页面的跨端检查
-    └── decision-records.md          可选的重大决策记录
+    └── design-contract.md           一份 DESIGN.md 的六个视角
 ```
 
 开发此 skill 时可运行 `python -m unittest discover -s tests -v` 验证提取脚本。
